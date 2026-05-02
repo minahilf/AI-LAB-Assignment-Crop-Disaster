@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crop Disease Detector</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  <div class="bg-blobs">
+    <div class="blob blob1"></div>
+    <div class="blob blob2"></div>
+    <div class="blob blob3"></div>
+  </div>
+
+  <div class="page">
+
+    <header>
+      <div class="logo">🌿</div>
+      <div class="header-text">
+        <h1>CropSense AI</h1>
+        <p>Intelligent Plant Disease Detection</p>
+      </div>
+      <div class="badge">Powered by ML</div>
+    </header>
+
+    <main>
+      <div class="hero">
+        <h2>Detect crop disease<br><span>in seconds.</span></h2>
+        <p class="hero-sub">Upload a clear photo of a plant leaf — our AI will identify the disease and give you a confidence score instantly.</p>
+      </div>
+
+      <div class="card upload-card">
+        <form method="POST" enctype="multipart/form-data" id="uploadForm">
+          <label for="fileInput" class="drop-zone" id="dropZone">
+            <div class="drop-inner">
+              <div class="drop-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="17 8 12 3 7 8"/>
+                  <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+              </div>
+              <p class="drop-title">Drop your leaf image here</p>
+              <p class="drop-sub">or click to browse — JPG, PNG supported</p>
+              <div class="file-name" id="fileName">No file selected</div>
+            </div>
+          </label>
+          <input type="file" id="fileInput" name="image" accept="image/*" required hidden>
+
+          <div class="preview-wrap" id="previewWrap" style="display:none">
+            <img id="previewImg" src="" alt="Preview">
+            <button type="button" class="remove-btn" onclick="removeFile()">✕ Remove</button>
+          </div>
+
+          <button type="submit" class="detect-btn" id="detectBtn">
+            <span class="btn-text">🔍 Analyse Leaf</span>
+            <span class="btn-loader" style="display:none">⏳ Analysing...</span>
+          </button>
+        </form>
+      </div>
+
+      {% if plant %}
+      <div class="card result-card {{ 'healthy' if 'healthy' in disease.lower() else 'diseased' }}">
+        <div class="result-header">
+          <div class="result-icon">{{ '✅' if 'healthy' in disease.lower() else '⚠️' }}</div>
+          <div>
+            <h3>{{ 'Healthy Plant!' if 'healthy' in disease.lower() else 'Disease Detected' }}</h3>
+            <p class="result-subtitle">Analysis complete</p>
+          </div>
+        </div>
+        <div class="result-grid">
+          <div class="result-item">
+            <span class="item-label">Plant Type</span>
+            <span class="item-value">{{ plant }}</span>
+          </div>
+          <div class="result-item">
+            <span class="item-label">Condition</span>
+            <span class="item-value">{{ disease }}</span>
+          </div>
+          <div class="result-item full">
+            <span class="item-label">Confidence Score</span>
+            <div class="confidence-bar-wrap">
+              <div class="confidence-bar">
+                <div class="confidence-fill" style="width: {{ confidence }}%"></div>
+              </div>
+              <span class="confidence-num">{{ confidence }}%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+    </main>
+
+    <footer>
+      <p>Built with Flask & PyTorch &nbsp;·&nbsp; PlantVillage Dataset &nbsp;·&nbsp; Minahil Fatima — 2K23/CSE/83</p>
+    </footer>
+
+  </div>
+
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const dropZone = document.getElementById('dropZone');
+    const fileName = document.getElementById('fileName');
+    const previewWrap = document.getElementById('previewWrap');
+    const previewImg = document.getElementById('previewImg');
+    const detectBtn = document.getElementById('detectBtn');
+
+    fileInput.addEventListener('change', function() {
+      if (this.files && this.files[0]) {
+        const file = this.files[0];
+        fileName.textContent = file.name;
+        const reader = new FileReader();
+        reader.onload = e => {
+          previewImg.src = e.target.result;
+          previewWrap.style.display = 'block';
+          dropZone.style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    function removeFile() {
+      fileInput.value = '';
+      fileName.textContent = 'No file selected';
+      previewWrap.style.display = 'none';
+      dropZone.style.display = 'block';
+    }
+
+    document.getElementById('uploadForm').addEventListener('submit', function() {
+      document.querySelector('.btn-text').style.display = 'none';
+      document.querySelector('.btn-loader').style.display = 'inline';
+      detectBtn.disabled = true;
+    });
+  </script>
+
+</body>
+</html>
