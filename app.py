@@ -112,4 +112,6 @@ def index():
     return render_template("index.html", plant=plant, disease=disease, confidence=confidence)
 
 if __name__ == "__main__":
+    # Added a startup log for the server
+    print("🌿 CropSense AI Server Started - PlantVillage Dataset Loaded")
     app.run(debug=True)
